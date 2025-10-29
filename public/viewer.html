@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Raw viewer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; background:#f8f9fb; color:#111; }
+    .container { max-width: 900px; margin: 0 auto; }
+    pre { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow:auto; }
+    header { margin-bottom: 16px; }
+    input[type="text"] { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #d0d7de; }
+    button { margin-top: 8px; padding: 8px 12px; border-radius:6px; border: none; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Raw viewer</h1>
+      <p>Введите путь к файлу внутри <code>/raw/</code> (например <code>/examples/example.lua</code>)</p>
+      <input id="path" type="text" placeholder="/examples/example.lua" value="/examples/example.lua" />
+      <button id="load">Load</button>
+    </header>
+    <main>
+      <pre id="code"><code></code></pre>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script>
+    const elPath = document.getElementById('path');
+    const btn = document.getElementById('load');
+    const code = document.querySelector('#code code');
+
+    async function loadFile() {
+      const p = elPath.value.trim();
+      if (!p) return alert('Введите путь, например /examples/example.lua');
+      try {
+        const res = await fetch('/raw' + p);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const txt = await res.text();
+        code.textContent = txt;
+        hljs.highlightElement(code);
+      } catch (e) {
+        code.textContent = 'Error: ' + e;
+      }
+    }
+
+    btn.addEventListener('click', loadFile);
+    // load initial
+    loadFile();
+  </script>
+</body>
+</html>
